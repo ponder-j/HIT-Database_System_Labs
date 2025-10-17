@@ -134,6 +134,9 @@ bool BufferPoolManager::unpin_page(PageId page_id, bool is_dirty) {
     std::scoped_lock lock{latch_};
 
     // 1. 在page_table_中搜寻page_id对应的页P
+    auto iter = page_table_.find(page_id);
+    if (iter == page_table_.end()) {
+        // 1.1 P在页表中不存在
         return false;
     }
 
