@@ -85,7 +85,37 @@ void SmManager::drop_db(const std::string& db_name) {
  * @param {string&} db_name 数据库名称，与文件夹同名
  */
 void SmManager::open_db(const std::string& db_name) {
-    
+    // 检查数据库目录是否存在
+    if (!is_dir(db_name)) {
+        throw DatabaseNotFoundError(db_name);
+    }
+
+    // 进入数据库目录
+    if (chdir(db_name.c_str()) < 0) {
+        throw UnixError();
+    }
+
+    // 读取数据库元数据文件
+    std::ifstream ifs(DB_META_NAME);
+    if (!ifs.is_open()) {
+        throw UnixError();
+    }
+    ifs >> db_;  // 使用重载的>>操作符读取元数据
+
+    // 打开所有表文件
+    for (auto& entry : db_.tabs_) {
+        auto& tab_name = entry.first; // 获取表名
+        auto& tab_meta = entry.second; // 获取表的元数据
+
+        // 打开表文件
+        fhs_.emplace(tab_name, rm_manager_->open_file(tab_name));
+
+        // 打开该表的所有索引文件
+        for (auto& index : tab_meta.indexes) {
+            auto index_name = ix_manager_->get_index_name(tab_name, index.cols); // 获取索引名称
+            ihs_.emplace(index_name, ix_manager_->open_index(tab_name, index.cols)); // 打开索引文件
+        }
+    }
 }
 
 /**
@@ -101,7 +131,20 @@ void SmManager::flush_meta() {
  * @description: 关闭数据库并把数据落盘
  */
 void SmManager::close_db() {
-    
+    // 刷新元数据到磁盘，确保最新的元数据被保存
+    flush_meta();
+
+    // 关闭所有索引文件
+    for (auto& entry : ihs_) {
+        ix_manager_->close_index(entry.second.get());
+    }
+    ihs_.clear();
+
+    // 关闭所有表文件
+    for (auto& entry : fhs_) {
+        rm_manager_->close_file(entry.second.get());
+    }
+    fhs_.clear();
 }
 
 /**
@@ -188,7 +231,44 @@ void SmManager::create_table(const std::string& tab_name, const std::vector<ColD
  * @param {Context*} context
  */
 void SmManager::drop_table(const std::string& tab_name, Context* context) {
-    
+    // 检查表是否存在
+    if (!db_.is_table(tab_name)) {
+        throw TableNotFoundError(tab_name);
+    }
+
+    // 获取表的元数据
+    TabMeta& tab = db_.get_table(tab_name);
+
+    // 关闭并删除该表的所有索引文件
+    for (auto& index : tab.indexes) {
+        auto index_name = ix_manager_->get_index_name(tab_name, index.cols);
+
+        // 从索引句柄映射中移除并关闭索引文件
+        auto ih_iter = ihs_.find(index_name);
+        if (ih_iter != ihs_.end()) {
+            ix_manager_->close_index(ih_iter->second.get());
+            ihs_.erase(ih_iter);
+        }
+
+        // 删除索引文件
+        ix_manager_->destroy_index(tab_name, index.cols);
+    }
+
+    // 关闭并删除表文件
+    auto fh_iter = fhs_.find(tab_name);
+    if (fh_iter != fhs_.end()) {
+        rm_manager_->close_file(fh_iter->second.get());
+        fhs_.erase(fh_iter);
+    }
+
+    // 删除表文件
+    rm_manager_->destroy_file(tab_name);
+
+    // 从元数据中删除该表
+    db_.tabs_.erase(tab_name);
+
+    // 刷新元数据到磁盘
+    flush_meta();
 }
 
 /**
