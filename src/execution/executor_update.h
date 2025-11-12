@@ -54,6 +54,9 @@ class UpdateExecutor : public AbstractExecutor {
                 }
                 
                 // 初始化右部值的原始数据
+                if (set_clause.rhs.raw != nullptr) {
+                    set_clause.rhs.raw.reset();
+                }
                 set_clause.rhs.init_raw(col->len);
                 
                 // 更新记录中对应字段的值
