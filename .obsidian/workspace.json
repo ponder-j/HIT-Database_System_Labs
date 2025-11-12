@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "lab3-scripts/实验报告.md",
+                "file": "lab4-scripts/实现说明.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "实验报告"
+              "title": "实现说明"
             }
           },
           {
@@ -185,9 +185,12 @@
   },
   "active": "c063cb9ea348d5c5",
   "lastOpenFiles": [
+    "lab4-scripts/lab4_markdown.md",
+    "lab4-scripts/实现说明.md",
+    "lab4-scripts/代码完成总结.md",
+    "lab3-scripts/实验报告.md",
     "lab1-scripts/函数实现.md",
     "lab2-scripts/Lab2函数实现说明.md",
-    "lab3-scripts/实验报告.md",
     "lab3-scripts/~$次数据库系统实验报告_2023212224_何思远.docx",
     "lab3-scripts/第3次数据库系统实验报告_2023212224_何思远.docx",
     "lab3-scripts/实验模板.docx"
