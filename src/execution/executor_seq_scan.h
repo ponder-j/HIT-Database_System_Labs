@@ -50,7 +50,20 @@ class SeqScanExecutor : public AbstractExecutor {
      *
      */
     void beginTuple() override {
+        // 创建表的记录扫描迭代器
+        scan_ = std::make_unique<RmScan>(fh_);
         
+        // 迭代扫描表中的元组，直到找到第一条满足所有条件的元组
+        while (!scan_->is_end()) {
+            rid_ = scan_->rid();  // 获取当前记录的Rid
+            // 获取当前记录
+            auto rec = fh_->get_record(rid_, context_);
+            // 检查该记录是否满足所有选择条件
+            if (eval_conds(rec.get(), fed_conds_, cols_)) {
+                break;  // 找到满足条件的元组，停止扫描
+            }
+            scan_->next();  // 移动到下一条记录
+        }
     }
 
     /**
@@ -58,7 +71,23 @@ class SeqScanExecutor : public AbstractExecutor {
      *
      */
     void nextTuple() override {
+        // 确保scan_已经初始化
+        assert(scan_ != nullptr);
         
+        // 移动到下一条记录
+        scan_->next();
+        
+        // 继续扫描，直到找到满足条件的元组或到达末尾
+        while (!scan_->is_end()) {
+            rid_ = scan_->rid();  // 获取当前记录的Rid
+            // 获取当前记录
+            auto rec = fh_->get_record(rid_, context_);
+            // 检查该记录是否满足所有选择条件
+            if (eval_conds(rec.get(), fed_conds_, cols_)) {
+                break;  // 找到满足条件的元组，停止扫描
+            }
+            scan_->next();  // 移动到下一条记录
+        }
     }
 
     /**
@@ -67,12 +96,16 @@ class SeqScanExecutor : public AbstractExecutor {
      * @return std::unique_ptr<RmRecord>
      */
     std::unique_ptr<RmRecord> Next() override {
-        return nullptr;
+        // 返回rid_标识的记录
+        return fh_->get_record(rid_, context_);
     }
 
     Rid &rid() override { return rid_; }
 
-    bool is_end() const override { return true; }
+    bool is_end() const override { 
+        // 判断scan_是否已经到达末尾
+        return scan_->is_end(); 
+    }
     
     std::string getType() override { return "SeqScanExecutor"; }
 
@@ -82,7 +115,48 @@ class SeqScanExecutor : public AbstractExecutor {
 
     private:
     bool eval_cond(const RmRecord *rec, const Condition &cond, const std::vector<ColMeta> &rec_cols) {
-        return true;
+        // 获取左部表达式的列元数据和值
+        auto lhs_col = get_col(rec_cols, cond.lhs_col);
+        char *lhs_data = rec->data + lhs_col->offset;  // 左部值的起始地址
+        
+        char *rhs_data;  // 右部值的起始地址
+        ColType rhs_type;
+        int rhs_len;
+        
+        // 判断右部是值还是列
+        if (cond.is_rhs_val) {
+            // 右部是常量值
+            rhs_type = cond.rhs_val.type;
+            rhs_len = lhs_col->len;  // 使用左部列的长度
+            rhs_data = cond.rhs_val.raw->data;
+        } else {
+            // 右部是列
+            auto rhs_col = get_col(rec_cols, cond.rhs_col);
+            rhs_type = rhs_col->type;
+            rhs_len = rhs_col->len;
+            rhs_data = rec->data + rhs_col->offset;
+        }
+        
+        // 使用ix_compare函数比较左部和右部的值
+        int cmp = ix_compare(lhs_data, rhs_data, lhs_col->type, lhs_col->len);
+        
+        // 根据比较运算符判断条件是否满足
+        switch (cond.op) {
+            case OP_EQ:  // 等于
+                return cmp == 0;
+            case OP_NE:  // 不等于
+                return cmp != 0;
+            case OP_LT:  // 小于
+                return cmp < 0;
+            case OP_GT:  // 大于
+                return cmp > 0;
+            case OP_LE:  // 小于等于
+                return cmp <= 0;
+            case OP_GE:  // 大于等于
+                return cmp >= 0;
+            default:
+                throw InternalError("Unexpected operator");
+        }
     }
 
     bool eval_conds(const RmRecord *rec, const std::vector<Condition> &conds, const std::vector<ColMeta> &rec_cols) {

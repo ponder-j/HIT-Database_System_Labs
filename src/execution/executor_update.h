@@ -38,6 +38,31 @@ class UpdateExecutor : public AbstractExecutor {
         context_ = context;
     }
     std::unique_ptr<RmRecord> Next() override {
+        // 遍历所有需要更新的记录
+        for (auto &rid : rids_) {
+            // 获取原记录
+            auto rec = fh_->get_record(rid, context_);
+            
+            // 根据set_clauses_更新记录的相应字段
+            for (auto &set_clause : set_clauses_) {
+                // 获取需要更新的列的元数据
+                auto col = tab_.get_col(set_clause.lhs.col_name);
+                
+                // 类型检查
+                if (col->type != set_clause.rhs.type) {
+                    throw IncompatibleTypeError(coltype2str(col->type), coltype2str(set_clause.rhs.type));
+                }
+                
+                // 初始化右部值的原始数据
+                set_clause.rhs.init_raw(col->len);
+                
+                // 更新记录中对应字段的值
+                memcpy(rec->data + col->offset, set_clause.rhs.raw->data, col->len);
+            }
+            
+            // 调用RmFileHandle的update_record函数更新记录
+            fh_->update_record(rid, rec->data, context_);
+        }
         
         return nullptr;
     }
