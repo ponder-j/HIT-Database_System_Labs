@@ -187,6 +187,7 @@
   "active": "23516f135ee580d7",
   "lastOpenFiles": [
     "lab4-scripts/~$实现说明.docx",
+    "lab4-scripts/~$次数据库系统实验报告_2023212224_何思远.docx",
     "lab4-scripts/实现说明.docx",
     "lab4-scripts/实现说明.md",
     "build/CMakeFiles/cmake.check_cache",
@@ -197,7 +198,6 @@
     "build/src/recovery",
     "build/src/transaction/CMakeFiles",
     "build/src/transaction",
-    "build/src/replacer/CMakeFiles",
     "pics/锁表结构.png",
     "pics/执行模块流程图.jpg",
     "pics/存储层-类之间的关系.png",
