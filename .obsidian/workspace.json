@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "lab4-scripts/总结.md",
+                "file": "lab4-scripts/lab4_markdown.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "总结"
+              "title": "lab4_markdown"
             }
           }
         ],
@@ -186,8 +186,8 @@
   },
   "active": "23516f135ee580d7",
   "lastOpenFiles": [
-    "lab4-scripts/代码完成总结.md",
     "lab4-scripts/总结.md",
+    "lab4-scripts/代码完成总结.md",
     "lab4-scripts/核心代码注释说明.md",
     "lab4-scripts/lab4-fix-report.md",
     "lab4-scripts/实现说明.md",
