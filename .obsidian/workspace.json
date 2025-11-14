@@ -35,7 +35,8 @@
               "title": "lab4_markdown"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -183,18 +184,18 @@
       "bases:Create new base": false
     }
   },
-  "active": "738c44f61497a872",
+  "active": "23516f135ee580d7",
   "lastOpenFiles": [
+    "lab4-scripts/实现说明.md",
     "lab4-scripts/lab4_markdown.md",
+    "lab4-scripts/~$次数据库系统实验报告_2023212224_何思远.docx",
     "lab4-scripts/总结.md",
     "lab4-scripts/代码完成总结.md",
     "lab4-scripts/核心代码注释说明.md",
     "lab4-scripts/lab4-fix-report.md",
-    "lab4-scripts/实现说明.md",
     "lab1-scripts/实验报告要求.md",
     "lab1-scripts/函数实现.md",
     "lab4-scripts/~$实现说明.docx",
-    "lab4-scripts/~$次数据库系统实验报告_2023212224_何思远.docx",
     "lab4-scripts/实现说明.docx",
     "build/CMakeFiles/cmake.check_cache",
     "build/CMakeCache.txt",
@@ -228,7 +229,6 @@
     "docs/Rucbase开发文档.md",
     "docs/Rucbase学生实验操作说明示例.md",
     "docs/Rucbase使用文档.md",
-    "docs/Rucbase-Lab4[并发控制实验文档].md",
-    "docs/Rucbase-Lab3[查询执行实验文档].md"
+    "docs/Rucbase-Lab4[并发控制实验文档].md"
   ]
 }
