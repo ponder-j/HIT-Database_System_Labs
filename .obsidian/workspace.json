@@ -35,8 +35,7 @@
               "title": "lab4_markdown"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -184,8 +183,9 @@
       "bases:Create new base": false
     }
   },
-  "active": "23516f135ee580d7",
+  "active": "738c44f61497a872",
   "lastOpenFiles": [
+    "lab4-scripts/lab4_markdown.md",
     "lab4-scripts/总结.md",
     "lab4-scripts/代码完成总结.md",
     "lab4-scripts/核心代码注释说明.md",
@@ -211,7 +211,6 @@
     "pics/B+树的结构.png",
     "pics/B+树插入流程.png",
     "pics/B+树删除流程.png",
-    "lab4-scripts/lab4_markdown.md",
     "lab3-scripts/实验报告.md",
     "lab3-scripts/lab3_summary.md",
     "lab2-scripts/提交证明.png",
